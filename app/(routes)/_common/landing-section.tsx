@@ -95,6 +95,14 @@ const LandingSection = () => {
             </div>
           </div>
         </div>
+
+        <div className="w-full py-10">
+          <div className="mx-auto max-w-3xl">
+            <div>
+              <h1 className="font-medium text-xl tracking-tight">Recent Projects</h1>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
