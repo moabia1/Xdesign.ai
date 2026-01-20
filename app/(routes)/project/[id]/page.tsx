@@ -1,35 +1,43 @@
-"use client"
-import { useGetProjectId } from '@/app/features/use-project-id';
-import { useParams } from 'next/navigation';
-import React from 'react'
-import Header from './_common/header';
-import Canvas from '@/components/canvas';
+"use client";
+import { useGetProjectId } from "@/app/features/use-project-id";
+import { useParams } from "next/navigation";
+import React from "react";
+import Header from "./_common/header";
+import Canvas from "@/components/canvas";
 
-const Page =  () => {
-  const params = useParams()
-
+const Page = () => {
+  const params = useParams();
   const id = params.id as string;
 
   const { data: project, isPending } = useGetProjectId(id);
   const frames = project?.frames || [];
   const theme = project?.theme;
 
+  const hasInitialData = frames.length > 0;
+  
+
   if (!isPending && !project) {
-    return <div>Project not found</div>
+    return <div>Project not found</div>;
   }
 
-
   return (
-    <div className='relative h-screen w-full flex flex-col'>
+    <div className="relative h-screen w-full flex flex-col">
       <Header projectName={project?.name} />
-      
-      <div className='flex w-full overflow-hidden'>
-        <div className='relative'>
-          <Canvas/>
-        </div>
-      </div>
-    </div>
-  )
-}
 
-export default Page
+      <CanvasProvider
+        initialFrames={frames}
+        initialTheme={theme}
+        hasInitialData={hasInitialData}
+        projectId={project?.id}
+      >
+        <div className="flex w-full overflow-hidden">
+          <div className="relative">
+            <Canvas />
+          </div>
+        </div>
+      </CanvasProvider>
+    </div>
+  );
+};
+
+export default Page;
