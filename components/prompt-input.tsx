@@ -41,7 +41,7 @@ const PromptInput = ({
           className="flex items-center justify-end">
           {!hideSubmitBtn && (
             <InputGroupButton variant={"default"}
-              className=""
+              className="cursor-pointer"
               size={"sm"}
               disabled={!promptText.trim() || isLoading}
               onClick={()=>onSubmit?.()}
