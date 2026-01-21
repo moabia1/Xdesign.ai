@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import React from "react";
 import Header from "./_common/header";
 import Canvas from "@/components/canvas";
+import { CanvasProvider } from "@/context/canvas-context";
 
 const Page = () => {
   const params = useParams();
@@ -11,7 +12,7 @@ const Page = () => {
 
   const { data: project, isPending } = useGetProjectId(id);
   const frames = project?.frames || [];
-  const theme = project?.theme;
+  const themeId = project?.theme;
 
   const hasInitialData = frames.length > 0;
   
@@ -26,13 +27,17 @@ const Page = () => {
 
       <CanvasProvider
         initialFrames={frames}
-        initialTheme={theme}
+        initialThemeId={themeId}
         hasInitialData={hasInitialData}
         projectId={project?.id}
       >
-        <div className="flex w-full overflow-hidden">
-          <div className="relative">
-            <Canvas />
+        <div className="flex flex-1 overflow-hidden">
+          <div className="relative flex-1">
+            <Canvas
+              projectId={project?.id}
+              projectName={project?.name}
+              isPending={isPending}
+            />
           </div>
         </div>
       </CanvasProvider>

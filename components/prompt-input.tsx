@@ -11,7 +11,7 @@ interface PropsType {
   isLoading?: boolean;
   className?: string;
   hideSubmitBtn?: boolean;
-  onSubmit: () => void;
+  onSubmit?: () => void;
 }
 
 const PromptInput = ({
