@@ -2,18 +2,20 @@
 
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Button } from "../ui/button";
-import { ChevronDown, Palette, Wand2 } from "lucide-react";
+import { CameraIcon, ChevronDown, Palette, Save, Wand2 } from "lucide-react";
 import PromptInput from "../prompt-input";
 import { useState } from "react";
 import { parseThemeColors } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 import { useCanvas } from "@/context/canvas-context";
+import ThemeSelector from "./theme-selector";
+import { Separator } from "../ui/separator";
 
 const CanvasFloatingToolBar = () => {
   const { themes, theme: currentTheme, setTheme } = useCanvas();
-  const [promptText, setPromptText] = useState<string>("")
+  const [promptText, setPromptText] = useState<string>("");
   return (
-    <div className="fixed top-6 left-1/2 -translate-x-1/2">
+    <div className="fixed top-6 left-1/2 -translate-x-1/2 z-20">
       <div className="w-full max-w-2xl bg-background dark:bg-gray-950 rounded-full shadow-xl border">
         <div className="flex flex-row items-center gap-2 px-3">
           <Popover>
@@ -33,7 +35,8 @@ const CanvasFloatingToolBar = () => {
                 hideSubmitBtn={true}
               />
               <Button className="mt-2 w-full bg-linear-to-r from-purple-500 to-indigo-600 text-white rounded-2xl shadow-lg shadow-purple-200/50 cursor-pointer">
-              Design</Button>
+                Design
+              </Button>
             </PopoverContent>
           </Popover>
 
@@ -43,36 +46,59 @@ const CanvasFloatingToolBar = () => {
                 <Palette className="size-4" />
                 <div className="flex gap-1.5">
                   {themes?.slice(0, 4)?.map((theme, index) => {
-                    const color = parseThemeColors(theme.style)
+                    const color = parseThemeColors(theme.style);
                     return (
                       <div
                         key={index}
                         role="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setTheme(theme.id)
+                          setTheme(theme.id);
                         }}
-                        className={cn(`w-6.5 h-6.5 rounded-full cursor-pointer`,
-                          currentTheme?.id === theme.id && "ring-1 ring-offset-1"
+                        className={cn(
+                          `w-6.5 h-6.5 rounded-full cursor-pointer`,
+                          currentTheme?.id === theme.id &&
+                            "ring-1 ring-offset-1",
                         )}
                         style={{
-                          background:`linear-gradient(135deg, ${color.primary}, ${color?.accent})`
+                          background: `linear-gradient(135deg, ${color.primary}, ${color?.accent})`,
                         }}
                       />
-                    )
+                    );
                   })}
                 </div>
 
                 <div className="flex items-center gap-1 text-sm">
-                  +{themes.length-4} more
-                  <ChevronDown className="size-4"/>
+                  +{themes.length - 4} more
+                  <ChevronDown className="size-4" />
                 </div>
               </div>
             </PopoverTrigger>
             <PopoverContent className="px-2 rounded-xl shadow border">
-              <ThemeSelector/>
+              <ThemeSelector />
             </PopoverContent>
           </Popover>
+
+          {/* Divider */}
+          <Separator orientation="vertical" className="h-4!" />
+
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="icon-sm"
+              className="rounded-full cursor-pointer"
+            >
+              <CameraIcon className="size-4.5" />
+            </Button>
+            <Button
+              variant="default"
+              size="sm"
+              className="rounded-full cursor-pointer"
+            >
+              <Save className="size-4"/>
+              Save
+            </Button>
+          </div>
         </div>
       </div>
     </div>

@@ -1,33 +1,37 @@
 "use client";
-import { useGetProjectId } from "@/app/features/use-project-id";
+
+
 import { useParams } from "next/navigation";
-import React from "react";
 import Header from "./_common/header";
 import Canvas from "@/components/canvas";
 import { CanvasProvider } from "@/context/canvas-context";
+import { useGetProjectId } from "@/app/features/use-project-id";
 
 const Page = () => {
   const params = useParams();
   const id = params.id as string;
 
   const { data: project, isPending } = useGetProjectId(id);
-  const frames = project?.frames || [];
-  const themeId = project?.theme;
+  // const frames = project?.frames || [];
+  // const themeId = project?.theme || "";
 
-  const hasInitialData = frames.length > 0;
-  
+  const hasInitialData = project?.frames.length > 0;
 
   if (!isPending && !project) {
     return <div>Project not found</div>;
   }
 
   return (
-    <div className="relative h-screen w-full flex flex-col">
+    <div
+      className="relative h-screen w-full
+   flex flex-col
+  "
+    >
       <Header projectName={project?.name} />
 
       <CanvasProvider
-        initialFrames={frames}
-        initialThemeId={themeId}
+        initialFrames={project?.frames}
+        initialThemeId={project?.theme}
         hasInitialData={hasInitialData}
         projectId={project?.id}
       >
