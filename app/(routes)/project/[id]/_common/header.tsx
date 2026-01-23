@@ -1,15 +1,18 @@
-import React from "react";
+
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import Logo from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { ArrowLeftIcon, MoonIcon, SunIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
 
 const Header = ({ projectName }: { projectName?: string }) => {
   const router = useRouter();
   const { theme, setTheme } = useTheme();
   const isDark = theme === "dark";
+
+
 
   return (
     <div className="sticky top-0">

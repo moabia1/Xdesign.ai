@@ -49,8 +49,8 @@ export const CanvasProvider = ({
   
   const theme = THEME_LIST.find((t) => t.id === themeId);
   const selectedFrame =
-    selectedFrameId && frames.length != 0
-      ? frames.find((f) => f.id === selectedFrameId) || null
+    selectedFrameId && frames?.length != 0
+      ? frames?.find((f) => f.id === selectedFrameId) || null
       : null;
   
   
