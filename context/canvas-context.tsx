@@ -39,13 +39,20 @@ export const CanvasProvider = ({
   projectId: string | null;
 }) => {
   const [themeId, setThemeId] = useState<string>(
-    initialThemeId || THEME_LIST[0].id || "",
+    initialThemeId || THEME_LIST[0].id
   );
   const [frames, setFrames] = useState<FrameType[]>(initialFrames);
   const [selectedFrameId, setSelectedFrameId] = useState<string | null>(null);
   const [loadingStatus, setLoadingStatus] =
-    useState<LoadingStatusType>(hasInitialData? "idle":"running");
+    useState<LoadingStatusType | null>(hasInitialData? "idle":null);
   
+  const [prevProjectId, setPrevProjectId] = useState(projectId);
+  if (projectId !== prevProjectId) {
+    setPrevProjectId(projectId);
+    setFrames(initialFrames)
+    setThemeId(initialThemeId || THEME_LIST[0].id)
+    setSelectedFrameId(null)
+  }
   
   const theme = THEME_LIST.find((t) => t.id === themeId);
   const selectedFrame =
@@ -60,6 +67,9 @@ export const CanvasProvider = ({
     }
   }, [initialThemeId])
 
+  useEffect(() => {
+    setFrames(initialFrames)
+  },[])
 
   const addFrame = useCallback((frame:FrameType) => {
     setFrames((prev)=>[...prev,frame])

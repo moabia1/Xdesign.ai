@@ -44,19 +44,40 @@ const AnalysisSchema = z.object({
     .max(4)
 })
 
-export const generateScreen = inngest.createFunction(
+export const generateScreens = inngest.createFunction(
   { id: "generate-ui-screens" },
   { event: "ui/generate.screens" },
-  async ({ event, step }) => {
+  async ({ event, step,publish }) => {
+
     const { userId, projectId, prompt, frames, theme: existingTheme } = event.data;
-    const isRegeneration = frames.length > 0;
+
+    const CHANNEL = `user:${userId}`;
+    const isExistingGeneration = Array.isArray(frames) && frames.length > 0;
+
+    await publish({
+      channel: CHANNEL,
+      topic: "generation.start",
+      data: {
+        status: "running",
+        projectId:projectId
+      }
+    })
     
     //Analyzing or plan
     const analysis = await step.run("analyze-and-plan-screens", async () => {
 
-      const contextHtml = frames?.slice(0,4)?.map((frame:FrameType)=> frame.htmlContent)?.join("\n");
+      await publish({
+      channel: CHANNEL,
+      topic: "analysis.start",
+      data: {
+        status: "analyzing",
+        projectId:projectId
+      }
+    })
 
-      const analysisPrompt = isRegeneration
+      const contextHtml = isExistingGeneration ? frames?.slice(0,4)?.map((frame:FrameType)=> frame.htmlContent)?.join("\n") : "";
+
+      const analysisPrompt = isExistingGeneration
         ? `
         USER REQUEST : ${prompt}
         SELECTED THEME:${existingTheme}
@@ -73,8 +94,8 @@ export const generateScreen = inngest.createFunction(
       prompt:analysisPrompt
       });
 
-      const themeToUse = isRegeneration ? existingTheme : object.theme
-      if (!isRegeneration) {
+      const themeToUse = isExistingGeneration ? existingTheme : object.theme
+      if (!isExistingGeneration) {
         await prisma.project.update({
           where: {
             id: projectId,
