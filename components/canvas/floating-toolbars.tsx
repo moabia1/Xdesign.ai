@@ -13,7 +13,15 @@ import { Separator } from "../ui/separator";
 import { useGenerateDesignById, useUpdateProject } from "@/app/features/use-project-id";
 import { Spinner } from "../ui/spinner";
 
-const CanvasFloatingToolBar = ({ projectId }: { projectId: string }) => {
+const CanvasFloatingToolBar = ({
+  projectId,
+  isScreenshotting,
+  onScreenshot,
+}: {
+    projectId: string,
+    isScreenshotting: boolean,
+    onScreenshot: () => void,
+}) => {
   const { themes, theme: currentTheme, setTheme } = useCanvas();
   const [promptText, setPromptText] = useState<string>("");
 
@@ -107,8 +115,14 @@ const CanvasFloatingToolBar = ({ projectId }: { projectId: string }) => {
               variant="outline"
               size="icon-sm"
               className="rounded-full cursor-pointer"
+              disabled={isScreenshotting}
+              onClick={onScreenshot}
             >
-              <CameraIcon className="size-4.5" />
+              {isScreenshotting ? (
+                <Spinner />
+              ) : (
+                <CameraIcon className="size-4.5" />
+              )}
             </Button>
             <Button
               variant="default"

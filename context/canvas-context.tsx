@@ -3,8 +3,6 @@ import { THEME_LIST, ThemeType } from "@/lib/theme";
 import { FrameType } from "@/types/projects";
 import { useInngestSubscription } from "@inngest/realtime/hooks"
 import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from "react";
-import { set } from "zod";
-import { is } from "zod/v4/locales";
 
 export type LoadingStatusType =
   | "idle"
@@ -24,7 +22,7 @@ interface canvasContextType {
   selectedFrameId: string | null;
   selectedFrame: FrameType | null;
   setSelectedFrameId: (id: string | null) => void;
-  loadingStatus: LoadingStatusType;
+  loadingStatus: LoadingStatusType | null;
 }
 
 const CanvasContext = createContext<canvasContextType | undefined>(undefined);
@@ -47,8 +45,7 @@ export const CanvasProvider = ({
   );
   const [frames, setFrames] = useState<FrameType[]>(initialFrames);
   const [selectedFrameId, setSelectedFrameId] = useState<string | null>(null);
-  const [loadingStatus, setLoadingStatus] =
-    useState<LoadingStatusType | null>(hasInitialData? "idle":null);
+  const [loadingStatus, setLoadingStatus] = useState<LoadingStatusType | null>(hasInitialData? "idle":null);
   
   const [prevProjectId, setPrevProjectId] = useState(projectId);
   if (projectId !== prevProjectId) {
@@ -84,15 +81,17 @@ export const CanvasProvider = ({
           setLoadingStatus("analyzing");
           break;
         case "analysis.complete":
-          if (data.theme) setThemeId(data.theme);
-          if (data.screens && data.screens.length > 0) {
-            const skeletonFrames: FrameType[] = data.screens.map((s:any) => ({
-              id: s.id,
-              title: s.name,
+          setLoadingStatus("generating");
+          if (data?.theme) setThemeId(data?.theme);
+          
+          if (data?.screens && data?.screens.length > 0) {
+            const skeletonFrames: FrameType[] = data.screens.map((s: any) => ({
+              id: s?.id,
+              title: s?.name,
               htmlContent: "",
               isLoading: true,
-            }));
-            setFrames((prev)=>[...prev,...skeletonFrames]);
+            }))
+            setFrames((prev)=> [...prev,...skeletonFrames])
           }
           break;
         case "generation.complete":
