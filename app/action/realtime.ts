@@ -13,7 +13,14 @@ export async function fetchRealtimeSubscriptionToken(){
   // This creates a token using the Inngest API that is bound to the channel and topic:
   const token = await getSubscriptionToken(inngest, {
     channel: `user:${userId}`,
-    topics: [""],
+    topics: [
+      "generation.start",
+      "analysis.start",
+      "analysis.complete",
+      "frames.update",
+      "frames.created",
+      "generation.complete",
+    ],
   });
 
   return token;

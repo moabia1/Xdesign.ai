@@ -1,6 +1,10 @@
+import { fetchRealtimeSubscriptionToken } from "@/app/action/realtime";
 import { THEME_LIST, ThemeType } from "@/lib/theme";
 import { FrameType } from "@/types/projects";
+import { useInngestSubscription } from "@inngest/realtime/hooks"
 import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from "react";
+import { set } from "zod";
+import { is } from "zod/v4/locales";
 
 export type LoadingStatusType =
   | "idle"
@@ -61,15 +65,46 @@ export const CanvasProvider = ({
       : null;
   
   
-  useEffect(() => {
-    if (initialThemeId) {
-      setThemeId(initialThemeId)
-    }
-  }, [initialThemeId])
+  //Update the loading status inngest realtime events
+  const {freshData} = useInngestSubscription({
+    refreshToken: fetchRealtimeSubscriptionToken,
+  });
 
   useEffect(() => {
-    setFrames(initialFrames)
-  },[])
+    if (!freshData || freshData.length === 0) return;
+    freshData.forEach((msg) => {
+      const { topic, data } = msg;
+      if (data.projectId !== projectId) return;
+      
+      switch (topic) {
+        case "generation.start":
+          setLoadingStatus("running");
+          break;
+        case "analysis.start":
+          setLoadingStatus("analyzing");
+          break;
+        case "analysis.complete":
+          if (data.theme) setThemeId(data.theme);
+          if (data.screens && data.screens.length > 0) {
+            const skeletonFrames: FrameType[] = data.screens.map((s:any) => ({
+              id: s.id,
+              title: s.name,
+              htmlContent: "",
+              isLoading: true,
+            }));
+            setFrames((prev)=>[...prev,...skeletonFrames]);
+          }
+          break;
+        case "generation.complete":
+          setLoadingStatus("completed");
+          setTimeout(() => setLoadingStatus("idle"), 1000);
+          break;
+        default:
+          break;
+      }
+    })
+  },[projectId,freshData])
+
 
   const addFrame = useCallback((frame:FrameType) => {
     setFrames((prev)=>[...prev,frame])

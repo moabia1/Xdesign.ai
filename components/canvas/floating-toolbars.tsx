@@ -10,10 +10,26 @@ import { cn } from "@/lib/utils";
 import { useCanvas } from "@/context/canvas-context";
 import ThemeSelector from "./theme-selector";
 import { Separator } from "../ui/separator";
+import { useGenerateDesignById, useUpdateProject } from "@/app/features/use-project-id";
+import { Spinner } from "../ui/spinner";
 
-const CanvasFloatingToolBar = () => {
+const CanvasFloatingToolBar = ({ projectId }: { projectId: string }) => {
   const { themes, theme: currentTheme, setTheme } = useCanvas();
   const [promptText, setPromptText] = useState<string>("");
+
+  const { mutate, isPending } = useGenerateDesignById(projectId);
+  const update = useUpdateProject(projectId);
+
+  const handleAIGenerate = () => {
+    if(!promptText.trim()) return;
+    mutate(promptText);
+  }
+
+  const handleUpdate = () => {
+    if (!currentTheme) return;
+    update.mutate(currentTheme.id);
+  }
+  
   return (
     <div className="fixed top-6 left-1/2 -translate-x-1/2 z-20">
       <div className="w-full max-w-2xl bg-background dark:bg-gray-950 rounded-full shadow-xl border">
@@ -34,8 +50,12 @@ const CanvasFloatingToolBar = () => {
                 className="min-h-[150px] ring-1! ring-purple-500! rounded-xl! shadow-none border-muted"
                 hideSubmitBtn={true}
               />
-              <Button className="mt-2 w-full bg-linear-to-r from-purple-500 to-indigo-600 text-white rounded-2xl shadow-lg shadow-purple-200/50 cursor-pointer">
-                Design
+              <Button
+                className="mt-2 w-full bg-linear-to-r from-purple-500 to-indigo-600 text-white rounded-2xl shadow-lg shadow-purple-200/50 cursor-pointer"
+                onClick={handleAIGenerate}
+                disabled={isPending}
+              >
+                {isPending ? "Generating..." : "Design"}
               </Button>
             </PopoverContent>
           </Popover>
@@ -94,9 +114,16 @@ const CanvasFloatingToolBar = () => {
               variant="default"
               size="sm"
               className="rounded-full cursor-pointer"
+              onClick={handleUpdate}
             >
-              <Save className="size-4"/>
-              Save
+              {update.isPending ? (
+                <Spinner />
+              ) : (
+                <>
+                  <Save className="size-4" />
+                  Save
+                </>
+              )}
             </Button>
           </div>
         </div>

@@ -105,6 +105,18 @@ export const generateScreens = inngest.createFunction(
         })
       }
       
+      await publish({
+      channel: CHANNEL,
+      topic: "generation.complete",
+      data: {
+        status: "generating",
+        theme:themeToUse,
+        totalScreens: object.screens.length,
+        screens:object.screens,
+        projectId:projectId
+      }
+      })
+      
       return {...object,themeToUse}
     })
 
@@ -162,21 +174,48 @@ export const generateScreens = inngest.createFunction(
         });
         
         let finalHtml = result.text ?? "";
-        const match = finalHtml.match(/<div[\s\s]*\/div>/)
+        // Capture the full <div> ... </div> block (allow nested content)
+        const match = finalHtml.match(/<div[\s\S]*<\/div>/);
         finalHtml = match ? match[0] : finalHtml;
-        finalHtml = finalHtml.replace(/```/g, "")
-        
-        //create the frame
-        const frame = await prisma.frame.create({
-          data: {
-            projectId,
-            title: screenPlan.name,
-            htmlContent: finalHtml,
-          },
-        });
+        finalHtml = finalHtml.replace(/```/g, "");
 
-        return {success:true,frame:frame}
+        console.log("Generated HTML length:", finalHtml.length);
+
+        // create the frame with safe error handling
+        try {
+          const frame = await prisma.frame.create({
+            data: {
+              projectId,
+              title: screenPlan.name,
+              htmlContent: finalHtml,
+            },
+          });
+
+          await publish({
+            channel: CHANNEL,
+            topic: "frames.created",
+            data: {
+              frame: frame,
+              screenId: screenPlan.id,
+              projectId: projectId,
+            },
+          });
+
+          return { success: true, frame: frame };
+        } catch (err) {
+          console.error("Failed to create or publish frame:", err);
+          return { success: false, error: err };
+        }
       })
     }
+
+    await publish({
+      channel: CHANNEL,
+      topic: "generation.complete",
+      data: {
+        status: "completed",
+        projectId:projectId
+      }
+    })
   },
 );

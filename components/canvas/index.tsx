@@ -33,14 +33,14 @@ const Canvas = ({
 
   const currentStatus = isPending
     ? "fetching"
-    : loadingStatus !== "idle" && loadingStatus !== "completed"
-      ? loadingStatus
-      : null;
+    : loadingStatus !== "idle" ? loadingStatus : null;
 
   return (
     <>
       <div className="relative w-full h-full overflow-hidden">
-        <CanvasFloatingToolBar />
+        <CanvasFloatingToolBar
+          projectId={projectId}
+        />
 
         {currentStatus && <CanvasLoader status={currentStatus} />}
 
@@ -122,19 +122,6 @@ const Canvas = ({
                       );
                     })}
                   </div>
-                  <DeviceFrame
-                    frameId="demo"
-                    title="Demo Screen"
-                    html={DEMO_HTML}
-                    scale={currentScale}
-                    initialPosition={{
-                      x: 1000,
-                      y: 100,
-                    }}
-                    toolMode={toolMode}
-                    theme_style={theme?.style}
-                    onOpenHtmlDialog={() => setOnOpenHtmlDialog(true)}
-                  />
                 </TransformComponent>
               </div>
 
