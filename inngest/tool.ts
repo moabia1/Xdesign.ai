@@ -1,25 +1,40 @@
 import { tool } from "ai";
-import z from "zod";
-
+import { z } from "zod";
 
 export const unsplashTool = tool({
-  description: `Search for high-quality images from Unsplash. Use this when you need to add an <img> tag.`,
+  description:
+    "Fetch a single high-quality image URL from Unsplash to be embedded directly in an <img> tag.",
   inputSchema: z.object({
     query: z
       .string()
-      .describe("Image search query (e.g. 'modern loft', 'finance graph'"),
-    orientation: z.enum(["landscape", "portrait", "squarish"])
-    .default("landscape")
+      .min(1)
+      .describe("Concise visual search query (e.g. 'fintech dashboard', 'wellness lifestyle')"),
+    orientation: z
+      .enum(["landscape", "portrait", "squarish"])
+      .default("landscape"),
   }),
-  execute: async ({query,orientation}) => {
+  execute: async ({ query, orientation }) => {
     try {
       const res = await fetch(
-        `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&orientation=${orientation}&per_page=1&client_id=${process.env.UNSPLASH_ACCESS_KEY}`
+        `https://api.unsplash.com/search/photos?query=${encodeURIComponent(
+          query
+        )}&orientation=${orientation}&per_page=1`,
+        {
+          headers: {
+            Authorization: `Client-ID ${process.env.UNSPLASH_ACCESS_KEY}`,
+            "Accept-Version": "v1",
+          },
+        }
       );
-      const { results } = await res.json();
-      return results?.[0]?.urls?.regular || ""
+
+      if (!res.ok) return null;
+
+      const data = await res.json();
+      const imageUrl = data?.results?.[0]?.urls?.regular;
+
+      return typeof imageUrl === "string" ? imageUrl : null;
     } catch {
-      return ""
+      return null;
     }
-  }
-})
+  },
+});

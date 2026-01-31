@@ -159,6 +159,13 @@ Tailwind utilities).
 2. Other imagery: use only \`searchUnsplash\`.
 3. Absolutely no base64, external unknown links, or hallucinated images/icons.
 
+# AVATAR RULE (STRICT):
+- Avatar URLs MUST NEVER be output as plain text.
+- Every avatar URL MUST be embedded inside an <img> tag.
+- If multiple avatars are needed, render them as stacked or grid <img> elements.
+- NEVER output a list of avatar URLs.
+
+
 # ICONS
 - All icons: \`<iconify-icon icon="lucide:[name]"></iconify-icon>\`.
 - Pick modern lucide icons most relevant to each action/section.

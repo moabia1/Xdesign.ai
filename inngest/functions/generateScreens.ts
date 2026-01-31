@@ -137,9 +137,8 @@ export const generateScreens = inngest.createFunction(
          model: openrouter.chat("google/gemini-2.5-flash-lite"),
          system: GENERATION_SYSTEM_PROMPT,
           tools: {
-           searchUnsplash:unsplashTool
+          searchUnsplash:unsplashTool
          },
-         stopWhen:stepCountIs(5),
          prompt: `
           - Screen ${i + 1}/${analysis.screens.length}
           - Screen ID: ${screenPlan.id}
